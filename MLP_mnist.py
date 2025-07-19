@@ -7,7 +7,7 @@ from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
 import numpy as np
 
-#下载训练集
+# 下载训练集
 training_data = datasets.MNIST(
     root="data",             # 数据集存放的路径
     train=True,              # 是否为训练集
