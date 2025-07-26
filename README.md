@@ -24,35 +24,34 @@ The MNIST dataset consists of 70,000 grayscale images of handwritten digits (0-9
 ## Project Overview
 
 Our neural network implementation includes:
-- **Multi-layer Perceptron (MLP)** with 5 hidden layers
-- **ReLU activation functions** for non-linearity
+- **Multi-layer Perceptron (MLP)** with 4 fully connected layers
+- **Linear transformations** without activation functions (simplified version)
 - **Adam optimizer** for efficient gradient descent
 - **Cross-entropy loss** for multi-class classification
 - **Batch processing** for efficient training
 - **GPU acceleration** support
-- **Real-time visualization** of predictions
+- **Sample visualization** of predictions
 
 ## Neural Network Architecture
 
 ### Architecture Design
 
-Our neural network follows a deep feedforward architecture:
+Our neural network follows a simplified feedforward architecture:
 
 ```
 Input Layer (784 neurons) → Flatten 28×28 images
-Hidden Layer 1 (128 neurons) → ReLU activation
-Hidden Layer 2 (256 neurons) → ReLU activation  
-Hidden Layer 3 (128 neurons) → ReLU activation
-Hidden Layer 4 (64 neurons) → ReLU activation
+Hidden Layer 1 (128 neurons) → Linear transformation
+Hidden Layer 2 (128 neurons) → Linear transformation
+Hidden Layer 3 (64 neurons) → Linear transformation
 Output Layer (10 neurons) → Softmax (implicit in CrossEntropyLoss)
 ```
 
 ### Why This Architecture?
 
 1. **Input Flattening**: The 28×28 pixel images are flattened into 784-dimensional vectors
-2. **Progressive Dimensionality**: We expand to 256 neurons to capture complex features, then gradually reduce
-3. **Multiple Hidden Layers**: Deep architecture allows learning hierarchical features
-4. **ReLU Activation**: Prevents vanishing gradient problem and adds non-linearity
+2. **Consistent Hidden Layers**: Two 128-neuron layers for feature extraction and combination
+3. **Dimensionality Reduction**: Gradual reduction from 128 to 64 to 10 neurons
+4. **Linear Transformations**: Simplified version without activation functions for educational purposes
 5. **Output Layer**: 10 neurons correspond to 10 digit classes (0-9)
 
 ## Data Loading and Preprocessing
@@ -86,19 +85,28 @@ Our `NeuralNetwork` class inherits from `nn.Module`, PyTorch's base class for ne
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
-        self.model = nn.Sequential(...)
-    
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(28*28, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 10)
+
     def forward(self, x):
-        return self.model(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc3(x)
+        x = self.fc4(x)
+        return x
 ```
 
 ### Layer-by-Layer Breakdown
 
 1. **nn.Flatten()**: Reshapes input from (batch_size, 1, 28, 28) to (batch_size, 784)
-2. **nn.Linear(784, 128)**: First fully connected layer
-3. **nn.ReLU()**: Activation function f(x) = max(0, x)
-4. **Subsequent layers**: Progressive feature extraction and dimensionality changes
-5. **Final layer**: Maps to 10 output classes
+2. **nn.Linear(784, 128)**: First fully connected layer (fc1)
+3. **nn.Linear(128, 128)**: Second fully connected layer (fc2)
+4. **nn.Linear(128, 64)**: Third fully connected layer (fc3)
+5. **nn.Linear(64, 10)**: Output layer (fc4) - maps to 10 output classes
 
 ## Training Process
 
@@ -132,24 +140,24 @@ The test function provides comprehensive evaluation:
 
 ### Visualization Features
 
-1. **Sample Predictions**: Shows 10 random test images with predictions
-2. **Training Curves**: Plots loss over epochs to monitor convergence
+1. **Sample Predictions**: Shows 10 random test images with predictions after training
+2. **Training Loss Curve**: Plots training loss over epochs after training completion
 3. **Real-time Feedback**: Displays training progress every 100 batches
 
 ## Results and Analysis
 
 ### Expected Performance
 
-With this architecture and hyperparameters, you can expect:
-- **Training Accuracy**: ~99%
-- **Test Accuracy**: ~97-98%
+With this simplified architecture and hyperparameters, you can expect:
+- **Training Accuracy**: ~95-98%
+- **Test Accuracy**: ~95-97%
 - **Training Time**: 2-3 minutes on GPU, 10-15 minutes on CPU
-- **Convergence**: Typically within 15-20 epochs
+- **Convergence**: Typically within 20-25 epochs
 
 ### Performance Factors
 
-1. **Architecture Depth**: Multiple layers capture complex patterns
-2. **ReLU Activation**: Prevents vanishing gradients
+1. **Architecture Simplicity**: Linear layers without activation functions
+2. **Network Depth**: 4-layer structure provides sufficient complexity for MNIST
 3. **Adam Optimizer**: Adaptive learning rates improve convergence
 4. **Batch Processing**: Stable gradient estimates
 
@@ -306,21 +314,19 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
-        self.model = nn.Sequential(
-            nn.Flatten(),                # Reshape: (batch, 1, 28, 28) → (batch, 784)
-            nn.Linear(28*28, 128),       # Fully connected: 784 → 128
-            nn.ReLU(),                   # Activation: f(x) = max(0, x)
-            nn.Linear(128, 256),         # Fully connected: 128 → 256
-            nn.ReLU(),                   # Activation
-            nn.Linear(256, 128),         # Fully connected: 256 → 128
-            nn.ReLU(),                   # Activation
-            nn.Linear(128, 64),          # Fully connected: 128 → 64
-            nn.ReLU(),                   # Activation
-            nn.Linear(64, 10)            # Output layer: 64 → 10 classes
-        )
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(28*28, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 10)
 
     def forward(self, x):
-        return self.model(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc3(x)
+        x = self.fc4(x)
+        return x
 ```
 
 **Detailed Architecture Analysis:**
@@ -331,24 +337,26 @@ class NeuralNetwork(nn.Module):
    - Output: (batch_size, 784)
    - Preserves batch dimension
 
-2. **nn.Linear(784, 128)**:
-   - Fully connected layer with weight matrix W(784×128) and bias b(128)
+2. **nn.Linear(784, 128)** (fc1):
+   - First fully connected layer with weight matrix W(784×128) and bias b(128)
    - Computation: output = input × W + b
    - Parameters: 784 × 128 + 128 = 100,480
 
-3. **nn.ReLU()**:
-   - Rectified Linear Unit: f(x) = max(0, x)
-   - Introduces non-linearity
-   - Prevents vanishing gradient problem
-   - Computationally efficient
+3. **nn.Linear(128, 128)** (fc2):
+   - Second fully connected layer
+   - Parameters: 128 × 128 + 128 = 16,512
 
-4. **Progressive Layer Sizes**:
-   - 784 → 128: Initial feature extraction
-   - 128 → 256: Feature expansion and complex pattern learning
-   - 256 → 128 → 64: Gradual dimensionality reduction
-   - 64 → 10: Final classification layer
+4. **nn.Linear(128, 64)** (fc3):
+   - Third fully connected layer
+   - Parameters: 128 × 64 + 64 = 8,256
 
-5. **Total Parameters**: ~200,000 trainable parameters
+5. **nn.Linear(64, 10)** (fc4):
+   - Output layer for 10 digit classes
+   - Parameters: 64 × 10 + 10 = 650
+
+6. **Total Parameters**: ~125,898 trainable parameters
+
+**Note**: This implementation uses only linear transformations without activation functions, making it a simplified version suitable for educational purposes.
 
 ### 7. Training Function Implementation
 
@@ -482,17 +490,18 @@ if __name__ == "__main__":
         print(f"\nEpoch {i+1}")
         train(train_dataloader, model, loss_fn, optimizer)
 
-    test(test_dataloader, model, loss_fn)
-
-    # Plot training curve
+    # Plot training curve after all epochs
     plt.figure(figsize=(10,5))
     plt.plot(train_loss_history, label='Train Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.title('Training Loss Curve')
+    plt.title('Training Loss')
     plt.legend()
     plt.grid()
     plt.show()
+
+    # Test the model after training
+    test(test_dataloader, model, loss_fn)
 ```
 
 **Configuration Details:**

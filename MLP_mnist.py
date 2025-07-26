@@ -9,7 +9,7 @@ import numpy as np
 
 # 下载训练集
 training_data = datasets.MNIST(
-    root="data",             # 数据集存放的路径
+    root="Data",             # 数据集存放的路径
     train=True,              # 是否为训练集
     download=True,           # 是否下载
     transform=ToTensor(),    # 数据转换
@@ -17,7 +17,7 @@ training_data = datasets.MNIST(
 
 # 下载测试集
 test_data = datasets.MNIST(
-    root="data",
+    root="Data",
     train=False,
     download=True, 
     transform=ToTensor(),
@@ -102,16 +102,6 @@ def train(dataloader, model, loss_fn, optimizer):
     avg_loss = epoch_loss / len(dataloader)
     train_loss_history.append(avg_loss)
 
-    # 绘制训练loss曲线
-    plt.figure(figsize=(10,5))
-    plt.plot(train_loss_history, label='Train Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Training Loss Curve')
-    plt.legend()
-    plt.grid()
-    plt.show()
-
     return avg_loss
 
 def test(dataloader, model, loss_fn):
@@ -146,5 +136,14 @@ if __name__ == "__main__":
     for i in range(epochs):
         print(f"\nEpoch {i+1}")
         train(train_dataloader, model, loss_fn, optimizer)
+
+    plt.figure(figsize=(10,5))
+    plt.plot(train_loss_history, label='Train Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    plt.legend()
+    plt.grid()
+    plt.show()
 
     test(test_dataloader, model, loss_fn)
